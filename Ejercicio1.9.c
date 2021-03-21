@@ -21,7 +21,7 @@ void depart(void);
 void report(void);
 void update_time_avg_stats(void);
 float expon(float mean);
-int poisson(float mean);
+float poisson(float mean);
 
 int main(void)
 {
@@ -91,7 +91,7 @@ void initialize(void)
 	area_register_status = 0.0;
 
 	/* Initialize the event list. Since no customers are present, the departure (service completion) event is eliminated from consideration. */
-	time_next_event[1] = sim_time + expon(mean_interarrival);
+	time_next_event[1] = sim_time + poisson(mean_interarrival);
 	time_next_event[2] = 1.0e+30;
 }
 
@@ -129,7 +129,7 @@ void arrive(void)
 { /* Arrival event function. */
 	float delay;
 	/* Schedule next arrival. */
-	time_next_event[1] = sim_time + expon(mean_interarrival);
+	time_next_event[1] = sim_time + poisson(mean_interarrival);
 
 	/* Check to see whether register is busy. */
 	if (register_status == BUSY)
@@ -230,20 +230,8 @@ float expon(float mean)
 	return -mean * log(lcgrand(1));
 }
 
-int poisson(float mean)
+float poisson(float mean)  /* Exponential variate generation function. */
 {
-	int poi_value; // Computed Poisson value to be returned
-	double t_sum;  // Time sum value
-
-	// Loop to generate Poisson values using exponential distribution
-	poi_value = 0;
-	t_sum = 0.0;
-	while (1)
-	{
-		t_sum = t_sum + expon(mean);
-		if (t_sum >= 1.0)
-			break;
-		poi_value++;
-	}
-	return (poi_value);
+    int f = rand() % 20;
+    return -mean * log((lcgrand(f)));
 }
