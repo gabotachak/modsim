@@ -7,11 +7,11 @@
 #include "lib/lcgrand.h" /* Header file for the random-number-generator */
 
 #define Q_LIMIT 100 /* Limit on the queue length */
-#define BUSY 1		/* Mnemonics for server's being busy */
+#define BUSY 1		/* Mnemonics for register's being busy */
 #define IDLE 0		/* and idle. */
 
-int next_event_type, num_clients_served, num_total_clients, num_events, num_in_q, server_status;
-float area_num_in_q, area_server_status, mean_interarrival, mean_service, sim_time, time_arrival[Q_LIMIT + 1], time_last_event, time_next_event[3], total_service_time;
+int next_event_type, num_clients_served, num_total_clients, num_events, num_in_q, register_status;
+float area_num_in_q, area_register_status, mean_interarrival, mean_service, sim_time, time_arrival[Q_LIMIT + 1], time_last_event, time_next_event[3], total_service_time;
 FILE *infile, *outfile;
 
 void initialize(void);
@@ -79,7 +79,7 @@ void initialize(void)
 	sim_time = 0;
 
 	/* Initialize the state variables. */
-	server_status = IDLE;
+	register_status = IDLE;
 	num_in_q = 0;
 	time_last_event = 0.0;
 
@@ -87,7 +87,7 @@ void initialize(void)
 	num_clients_served = 0;
 	total_service_time = 0.0;
 	area_num_in_q = 0.0;
-	area_server_status = 0.0;
+	area_register_status = 0.0;
 
 	/* Initialize the event list. Since no customers are present, the departure (service completion) event is eliminated from consideration. */
 	time_next_event[1] = sim_time + expon(mean_interarrival);
@@ -128,10 +128,10 @@ void arrive(void)
 	/* Schedule next arrival. */
 	time_next_event[1] = sim_time + expon(mean_interarrival);
 
-	/* Check to see whether server is busy. */
-	if (server_status == BUSY)
+	/* Check to see whether register is busy. */
+	if (register_status == BUSY)
 	{
-		/* Server is busy so increment the number of customers in the queue. */
+		/* register is busy so increment the number of customers in the queue. */
 		++num_in_q;
 
 		/* Check to see whether an overflow condition exists. */
@@ -149,13 +149,13 @@ void arrive(void)
 
 	else
 	{
-		/* Server is idle, so arriving customer has a delay of zero. */
+		/* register is idle, so arriving customer has a delay of zero. */
 		delay = 0.0;
 		total_service_time += delay;
 
-		/* Increment the number of customers delayed, and make server busy. */
+		/* Increment the number of customers delayed, and make register busy. */
 		++num_clients_served;
-		server_status = BUSY;
+		register_status = BUSY;
 
 		/* Schedule a departure (service completion). */
 		time_next_event[2] = sim_time + expon(mean_service);
@@ -170,9 +170,9 @@ void depart(void)
 	/* Check to see whether the queue is empty. */
 	if (num_in_q == 0)
 	{
-		/* The queue is empty so make the server idle and eliminate the
+		/* The queue is empty so make the register idle and eliminate the
 		 * departure (service completion) event from consideration. */
-		server_status = IDLE;
+		register_status = IDLE;
 		time_next_event[2] = 1.0e+30;
 	}
 	else
@@ -203,7 +203,7 @@ void report(void)
 	fprintf(outfile, "_________________________________________________________\n");
 	fprintf(outfile, "Tiempo de espera en la cola promedio de %11.3f minutos\n\n", total_service_time / num_clients_served);
 	fprintf(outfile, "Número promedio de clientes en la cola %10.3f\n\n", area_num_in_q / sim_time);
-	fprintf(outfile, "Utilización de la caja registradora%15.3f\n\n", area_server_status / sim_time);
+	fprintf(outfile, "Utilización de la caja registradora%15.3f\n\n", area_register_status / sim_time);
 	fprintf(outfile, "La simulación termina en %12.3f minutos", sim_time);
 }
 
@@ -218,8 +218,8 @@ void update_time_avg_stats(void)
 	/* Update area under number-in-queue function */
 	area_num_in_q += num_in_q * time_since_last_event;
 
-	/* Update area under server-busy indicator function. */
-	area_server_status += server_status * time_since_last_event;
+	/* Update area under register-busy indicator function. */
+	area_register_status += register_status * time_since_last_event;
 }
 
 float expon(float mean)
