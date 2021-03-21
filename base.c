@@ -10,7 +10,7 @@
 #define BUSY 1		/* Mnemonics for server's being busy */
 #define IDLE 0		/* and idle. */
 
-int next_event_type, num_clients_served, num_total_entities, num_events, num_in_q, server_status;
+int next_event_type, num_entities_served, num_total_entities, num_events, num_in_q, server_status;
 float area_num_in_q, area_server_status, mean_interarrival, mean_service, sim_time, time_arrival[Q_LIMIT + 1], time_last_event, time_next_event[3], total_service_time;
 FILE *infile, *outfile;
 
@@ -44,7 +44,7 @@ int main(void)
 	initialize();
 
 	/* Run the simulation while more delays are still needed */
-	while (num_clients_served < num_total_entities)
+	while (num_entities_served < num_total_entities)
 	{
 		/*Determine the next event */
 		timing();
@@ -84,7 +84,7 @@ void initialize(void)
 	time_last_event = 0.0;
 
 	/* Initialize the statistical counters. */
-	num_clients_served = 0;
+	num_entities_served = 0;
 	total_service_time = 0.0;
 	area_num_in_q = 0.0;
 	area_server_status = 0.0;
@@ -154,7 +154,7 @@ void arrive(void)
 		total_service_time += delay;
 
 		/* Increment the number of customers delayed, and make server busy. */
-		++num_clients_served;
+		++num_entities_served;
 		server_status = BUSY;
 
 		/* Schedule a departure (service completion). */
@@ -186,7 +186,7 @@ void depart(void)
 		total_service_time += delay;
 
 		/* Increment the number of customers delayed, and schedule departure. */
-		++num_clients_served;
+		++num_entities_served;
 		time_next_event[2] = sim_time + expon(mean_service);
 
 		/* Move each customer in queue (if any) up one place. */
@@ -201,7 +201,7 @@ void report(void)
 { /*Report generator function */
 	/* Compute and write estimates of desired measures of performance. */
 	fprintf(outfile, "_________________________________________________________\n");
-	fprintf(outfile, "Tiempo de espera en la cola promedio de %11.3f minutos\n\n", total_service_time / num_clients_served);
+	fprintf(outfile, "Tiempo de espera en la cola promedio de %11.3f minutos\n\n", total_service_time / num_entities_served);
 	fprintf(outfile, "Número promedio de entidades en la cola %10.3f\n\n", area_num_in_q / sim_time);
 	fprintf(outfile, "Utilización del sistema servidor%15.3f\n\n", area_server_status / sim_time);
 	fprintf(outfile, "La simulación termina en %12.3f minutos", sim_time);

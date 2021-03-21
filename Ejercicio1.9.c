@@ -10,7 +10,7 @@
 #define BUSY 1		/* Mnemonics for server's being busy */
 #define IDLE 0		/* and idle. */
 
-int next_event_type, num_clients_served, num_total_entities, num_events, num_in_q, server_status;
+int next_event_type, num_clients_served, num_total_clients, num_events, num_in_q, server_status;
 float area_num_in_q, area_server_status, mean_interarrival, mean_service, sim_time, time_arrival[Q_LIMIT + 1], time_last_event, time_next_event[3], total_service_time;
 FILE *infile, *outfile;
 
@@ -32,19 +32,19 @@ int main(void)
 	num_events = 2;
 
 	/* Parámetros de entrada */
-	fscanf(infile, "%f %f %d", &mean_interarrival, &mean_service, &num_total_entities);
+	fscanf(infile, "%f %f %d", &mean_interarrival, &mean_service, &num_total_clients);
 
 	/* Write report heading and input parameters */
 	fprintf(outfile, "Sistema del supermercado\n\n");
 	fprintf(outfile, "Tiempo promedio entre llegadas de %16.3f minutos\n\n", mean_interarrival);
 	fprintf(outfile, "Tiempo medio de servicio de %16.3f minutos\n\n", mean_service);
-	fprintf(outfile, "Número de clientes %14d\n\n", num_total_entities);
+	fprintf(outfile, "Número de clientes %14d\n\n", num_total_clients);
 
 	/*Initialize the simulation */
 	initialize();
 
 	/* Run the simulation while more delays are still needed */
-	while (num_clients_served < num_total_entities)
+	while (num_clients_served < num_total_clients)
 	{
 		/*Determine the next event */
 		timing();
