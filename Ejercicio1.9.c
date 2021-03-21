@@ -1,4 +1,4 @@
-//SIMULADOR DE SISTEMA DE COLA
+//SIMULADOR DE CAJA REGISTRADORA CON UNA FILA
 //CÓDIGO REALIZADO CON BASE EN EL LIBRO DE SIMULACIÓN DE LAW
 
 #include <stdio.h>
@@ -24,9 +24,9 @@ float expon(float mean);
 
 int main(void)
 {
-	/* Archivos de entrada y salida - CAMBIAR NOMBRES PARA CADA EJERCICIO*/
-	infile = fopen("mm1.in", "r");
-	outfile = fopen("mm1.out", "w");
+	/* Archivos de entrada y salida */
+	infile = fopen("mm1.9.in", "r");
+	outfile = fopen("mm1.9.out", "w");
 
 	/* Como son dos eventos, se establece en 2 */
 	num_events = 2;
@@ -35,10 +35,10 @@ int main(void)
 	fscanf(infile, "%f %f %d", &mean_interarrival, &mean_service, &num_total_entities);
 
 	/* Write report heading and input parameters */
-	fprintf(outfile, "Sistema de cola\n\n");
+	fprintf(outfile, "Sistema del supermercado\n\n");
 	fprintf(outfile, "Tiempo promedio entre llegadas de %16.3f minutos\n\n", mean_interarrival);
 	fprintf(outfile, "Tiempo medio de servicio de %16.3f minutos\n\n", mean_service);
-	fprintf(outfile, "Número de entidades %14d\n\n", num_total_entities);
+	fprintf(outfile, "Número de clientes %14d\n\n", num_total_entities);
 
 	/*Initialize the simulation */
 	initialize();
@@ -202,8 +202,8 @@ void report(void)
 	/* Compute and write estimates of desired measures of performance. */
 	fprintf(outfile, "_________________________________________________________\n");
 	fprintf(outfile, "Tiempo de espera en la cola promedio de %11.3f minutos\n\n", total_service_time / num_clients_served);
-	fprintf(outfile, "Número promedio de entidades en la cola %10.3f\n\n", area_num_in_q / sim_time);
-	fprintf(outfile, "Utilización del sistema servidor%15.3f\n\n", area_server_status / sim_time);
+	fprintf(outfile, "Número promedio de clientes en la cola %10.3f\n\n", area_num_in_q / sim_time);
+	fprintf(outfile, "Utilización de la caja registradora%15.3f\n\n", area_server_status / sim_time);
 	fprintf(outfile, "La simulación termina en %12.3f minutos", sim_time);
 }
 
