@@ -5,6 +5,7 @@
 !*.cbp
 !*.layout
 !*.md
+!*.in
 !*.gitignore
 !*.vscode
 !Makefile

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
-#include "lcgrand.h" /* Header file for the random-number-generator */
+#include "lib/lcgrand.h" /* Header file for the random-number-generator */
 
 #define Q_LIMIT 100 /* Limit on the queue length */
 #define BUSY 1 /* Mnemonics for server's being busy */
