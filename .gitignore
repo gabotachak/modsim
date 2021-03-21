@@ -6,4 +6,5 @@
 !*.layout
 !*.md
 !*.gitignore
+!*.vscode
 !Makefile
