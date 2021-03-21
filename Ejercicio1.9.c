@@ -21,6 +21,7 @@ void depart(void);
 void report(void);
 void update_time_avg_stats(void);
 float expon(float mean);
+int poisson(float mean);
 
 int main(void)
 {
@@ -34,25 +35,25 @@ int main(void)
 	/* Parámetros de entrada */
 	fscanf(infile, "%f %f %d", &mean_interarrival, &mean_service, &num_total_clients);
 
-	/* Write report heading and input parameters */
+	/* Mostrar valores de entrada */
 	fprintf(outfile, "Sistema del supermercado\n\n");
 	fprintf(outfile, "Tiempo promedio entre llegadas de %16.3f minutos\n\n", mean_interarrival);
 	fprintf(outfile, "Tiempo medio de servicio de %16.3f minutos\n\n", mean_service);
 	fprintf(outfile, "Número de clientes %14d\n\n", num_total_clients);
 
-	/*Initialize the simulation */
+	/*Inicializar simulación */
 	initialize();
 
-	/* Run the simulation while more delays are still needed */
+	/* Correr la simulación mientras haya clientes */
 	while (num_clients_served < num_total_clients)
 	{
-		/*Determine the next event */
+		/*Determinar el tiempo del siguiente evento */
 		timing();
 
-		/* Update time-average statistical accumulators. */
+		/* Actualizar acumuladores estadísticos */
 		update_time_avg_stats();
 
-		/* Invoke the appropriate event function */
+		/* Llamar a la rutina del evento, dependiendo de su tipo */
 		switch (next_event_type)
 		{
 		case 1:
@@ -97,13 +98,15 @@ void initialize(void)
 void timing(void)
 { /* Timing function. */
 	int i;
-	float min_time_next_event = 1.0e+29;
 
-	next_event_type = 0;
+	float min_time_next_event = 1.0e+29; //esto se declara así por una verificación de errores
+
+	next_event_type = 0; //si no hay eventos, esto se quedará en 0 y arrojará error
+
 	/* Determine the event type for the next event to occur. */
 	for (i = 1; i <= num_events; ++i)
 	{
-		if (time_next_event[i] < min_time_next_event)
+		if (time_next_event[i] < min_time_next_event) //si el evento es válido
 		{
 			min_time_next_event = time_next_event[i];
 			next_event_type = i;
@@ -114,7 +117,7 @@ void timing(void)
 	if (next_event_type == 0)
 	{
 		/* The event list is empty, so stop the simulation. */
-		fprintf(outfile, "\nEvent list is empty at time %f", sim_time);
+		fprintf(outfile, "\nLista de eventos vacía en el tiempo %f", sim_time);
 		exit(1);
 	}
 
@@ -138,8 +141,7 @@ void arrive(void)
 		if (num_in_q > Q_LIMIT)
 		{
 			/* The queue has overflowed, so stop the simulation. */
-			fprintf(outfile, "\nOverflow of the array time_arrival at");
-			fprintf(outfile, " time %f", sim_time);
+			fprintf(outfile, "\nLa cola se desbordó en el tiempo %f", sim_time);
 			exit(2);
 		}
 
@@ -226,4 +228,22 @@ float expon(float mean)
 { /* Exponential variate generation function. */
 	/* Return an exponential random variate with mean "mean". */
 	return -mean * log(lcgrand(1));
+}
+
+int poisson(float mean)
+{
+	int poi_value; // Computed Poisson value to be returned
+	double t_sum;  // Time sum value
+
+	// Loop to generate Poisson values using exponential distribution
+	poi_value = 0;
+	t_sum = 0.0;
+	while (1)
+	{
+		t_sum = t_sum + expon(mean);
+		if (t_sum >= 1.0)
+			break;
+		poi_value++;
+	}
+	return (poi_value);
 }

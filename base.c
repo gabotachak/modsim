@@ -21,6 +21,7 @@ void depart(void);
 void report(void);
 void update_time_avg_stats(void);
 float expon(float mean);
+int poisson(float mean);
 
 int main(void)
 {
@@ -226,4 +227,22 @@ float expon(float mean)
 { /* Exponential variate generation function. */
 	/* Return an exponential random variate with mean "mean". */
 	return -mean * log(lcgrand(1));
+}
+
+int poisson(float mean)
+{
+	int poi_value; // Computed Poisson value to be returned
+	double t_sum;  // Time sum value
+
+	// Loop to generate Poisson values using exponential distribution
+	poi_value = 0;
+	t_sum = 0.0;
+	while (1)
+	{
+		t_sum = t_sum + expon(mean);
+		if (t_sum >= 1.0)
+			break;
+		poi_value++;
+	}
+	return (poi_value);
 }
