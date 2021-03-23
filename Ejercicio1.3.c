@@ -12,12 +12,12 @@
 #define BUSY 1		/* Mnemonics for server's being busy */
 #define IDLE 0		/* and idle. */
 
-int next_event_type, num_clients_served, num_total_clients, num_events;
-float area_num_in_q, area_server_status, mean_interarrival, sim_time, time_last_event, time_next_event[3], total_service_time;
+int next_event_type, num_events;
+float area_num_in_q, area_server_status, mean_interarrival, sim_time, time_last_event, time_next_event[3];
 FILE *infile, *outfile;
 
-int serverA1_status, serverA2_status, serverB_status, num_in_q1, num_in_q2;
-float probtype1, mean_servicetype1, min_servicetype2, max_servicetype2, time_arrival_type1[Q_LIMIT + 1], time_arrival_type2[Q_LIMIT + 1];
+int serverA1_status, serverA2_status, serverB_status, num_in_q1, num_in_q2, num_clients_served_q1, num_clients_served_q2;
+float probtype1, mean_service_type1, min_service_type2, max_service_type2, time_arrival_type1[Q_LIMIT + 1], time_arrival_type2[Q_LIMIT + 1], total_service_time_type1, total_service_time_type2;
 
 void initialize(void);
 void timing(void);
@@ -28,7 +28,7 @@ void report(void);
 void update_time_avg_stats(void);
 float expon(float mean);
 float poisson(float mean);
-float uniform(float a, float b); 
+float uniform(float a, float b);
 
 int main(void)
 {
@@ -40,13 +40,13 @@ int main(void)
 	num_events = 2;
 
 	/* Parámetros de entrada */
-	fscanf(infile, "%f %f %f %f %f", &mean_interarrival, &probtype1, &mean_servicetype1, &min_servicetype2, &max_servicetype2);
+	fscanf(infile, "%f %f %f %f %f", &mean_interarrival, &probtype1, &mean_service_type1, &min_service_type2, &max_service_type2);
 
 	/* Write report heading and input parameters */
 	fprintf(outfile, "Sistema de servidores\n\n");
 	fprintf(outfile, "Tiempo promedio entre llegadas de clientes de %16.3f minutos\n\n", mean_interarrival);
-	fprintf(outfile, "Tiempo medio de servicio para clientes de tipo 1 de %16.3f minutos\n\n", mean_servicetype1);
-	fprintf(outfile, "Tiempo medio de servicio para clientes de tipo 2 entre %16.3f y %16.3f minutos\n\n", min_servicetype2, max_servicetype2);
+	fprintf(outfile, "Tiempo medio de servicio para clientes de tipo 1 de %16.3f minutos\n\n", mean_service_type1);
+	fprintf(outfile, "Tiempo medio de servicio para clientes de tipo 2 entre %16.3f y %16.3f minutos\n\n", min_service_type2, max_service_type2);
 
 	/*Initialize the simulation */
 	initialize();
@@ -99,7 +99,8 @@ void initialize(void)
 	time_last_event = 0.0;
 
 	/* Initialize the statistical counters. */
-	num_clients_served = 0;
+	num_clients_served_q1 = 0;
+	num_clients_served_q2 = 0;
 	total_service_time = 0.0;
 	area_num_in_q = 0.0;
 	area_server_status = 0.0;
@@ -154,7 +155,7 @@ void arrive(void)
 			total_service_time += delay;
 
 			/* Increment the number of customers delayed, and make server busy. */
-			++num_clients_served;
+			++num_clients_served_q1;
 			if (serverA1_status == IDLE)
 			{
 				serverA1_status = BUSY;
@@ -169,7 +170,7 @@ void arrive(void)
 			}
 
 			/* Schedule a departure (service completion). */
-			time_next_event[2] = sim_time + expon(mean_servicetype1);
+			time_next_event[2] = sim_time + expon(mean_service_type1);
 		}
 		else
 		{
@@ -198,7 +199,7 @@ void arrive(void)
 			total_service_time += delay;
 
 			/* Increment the number of customers delayed, and make server busy. */
-			++num_clients_served;
+			++num_clients_served_q2;
 			if (serverA1_status == IDLE)
 			{
 				serverA1_status = BUSY;
@@ -210,7 +211,7 @@ void arrive(void)
 			serverB_status = BUSY;
 
 			/* Schedule a departure (service completion). */
-			time_next_event[2] = sim_time + uniform(min_servicetype2,max_servicetype2);
+			time_next_event[2] = sim_time + uniform(min_service_type2, max_service_type2);
 		}
 		else
 		{
@@ -236,6 +237,56 @@ void depart(void)
 { /*Departure event function. */
 	int i;
 	float delay;
+
+	if ((num_in_q2 > 0) && ((serverA1_status == IDLE || serverA2_status == IDLE) && serverB_status == IDLE))
+	{
+		/* The queue is nonempty, so decrement the number of customers in queue. */
+		--num_in_q2;
+
+		/* Compute the delay of the customer who is beginning service
+		 * and update the total delay of accumulator. */
+		delay = sim_time - time_arrival_type2[1];
+		total_service_time += delay;
+
+		/* Increment the number of customers delayed, and schedule departure. */
+		++num_clients_served_q2;
+		time_next_event[2] = sim_time + uniform(min_service_type2, max_service_type2);
+		if (serverA1_status == IDLE)
+		{
+			serverA1_status = BUSY;
+		}
+		else if (serverA2_status == IDLE)
+		{
+			serverA2_status = BUSY;
+		}
+		serverB_status = BUSY;
+
+		/* Move each customer in queue (if any) up one place. */
+		for (i = 1; i <= num_in_q2; ++i)
+		{
+			time_arrival_type2[i] = time_arrival_type2[i + 1];
+		}
+	}
+	else if ((num_in_q1 > 0) && (serverA1_status == IDLE || serverA2_status == IDLE || serverB_status == IDLE))
+	{
+		/* The queue is nonempty, so decrement the number of customers in queue. */
+		--num_in_q2;
+
+		/* Compute the delay of the customer who is beginning service
+		 * and update the total delay of accumulator. */
+		delay = sim_time - time_arrival_type2[1];
+		total_service_time += delay;
+
+		/* Increment the number of customers delayed, and schedule departure. */
+		++num_clients_served_q2;
+		time_next_event[2] = sim_time + uniform(min_service_type2, max_service_type2);
+
+		/* Move each customer in queue (if any) up one place. */
+		for (i = 1; i <= num_in_q2; ++i)
+		{
+			time_arrival_type2[i] = time_arrival_type2[i + 1];
+		}
+	}
 
 	/* Check to see whether the queue is empty. */
 	if (num_in_q == 0)
@@ -315,6 +366,6 @@ float poisson(float mean) /* Exponential variate generation function. */
 
 float uniform(float a, float b) /* Any float between a and b. */
 {
-	float scale = rand() / (float) RAND_MAX; /* [0, 1.0] */
-    return a + scale * ( b - a );      /* [a, b] */
+	float scale = rand() / (float)RAND_MAX; /* [0, 1.0] */
+	return a + scale * (b - a);				/* [a, b] */
 }
