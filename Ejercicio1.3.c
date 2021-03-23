@@ -101,7 +101,8 @@ void initialize(void)
 	/* Initialize the statistical counters. */
 	num_clients_served_q1 = 0;
 	num_clients_served_q2 = 0;
-	total_service_time = 0.0;
+	total_service_time_type1 = 0.0;
+	total_service_time_type2 = 0.0;
 	area_num_in_q = 0.0;
 	area_server_status = 0.0;
 
@@ -152,7 +153,7 @@ void arrive(void)
 		{
 			/* Server is idle, so arriving customer has a delay of zero. */
 			delay = 0.0;
-			total_service_time += delay;
+			total_service_time_type1 += delay;
 
 			/* Increment the number of customers delayed, and make server busy. */
 			++num_clients_served_q1;
@@ -196,7 +197,7 @@ void arrive(void)
 		{
 			/* Server is idle, so arriving customer has a delay of zero. */
 			delay = 0.0;
-			total_service_time += delay;
+			total_service_time_type2 += delay;
 
 			/* Increment the number of customers delayed, and make server busy. */
 			++num_clients_served_q2;
@@ -246,7 +247,7 @@ void depart(void)
 		/* Compute the delay of the customer who is beginning service
 		 * and update the total delay of accumulator. */
 		delay = sim_time - time_arrival_type2[1];
-		total_service_time += delay;
+		total_service_time_type2 += delay;
 
 		/* Increment the number of customers delayed, and schedule departure. */
 		++num_clients_served_q2;
@@ -275,7 +276,7 @@ void depart(void)
 		/* Compute the delay of the customer who is beginning service
 		 * and update the total delay of accumulator. */
 		delay = sim_time - time_arrival_type2[1];
-		total_service_time += delay;
+		total_service_time_type1 += delay;
 
 		/* Increment the number of customers delayed, and schedule departure. */
 		++num_clients_served_q2;
@@ -289,33 +290,33 @@ void depart(void)
 	}
 
 	/* Check to see whether the queue is empty. */
-	if (num_in_q == 0)
-	{
-		/* The queue is empty so make the server idle and eliminate the
-		 * departure (service completion) event from consideration. */
-		server_status = IDLE;
-		time_next_event[2] = 1.0e+30;
-	}
-	else
-	{
-		/* The queue is nonempty, so decrement the number of customers in queue. */
-		--num_in_q;
+	// if (num_in_q == 0)
+	// {
+	// 	/* The queue is empty so make the server idle and eliminate the
+	// 	 * departure (service completion) event from consideration. */
+	// 	server_status = IDLE;
+	// 	time_next_event[2] = 1.0e+30;
+	// }
+	// else
+	// {
+	// 	/* The queue is nonempty, so decrement the number of customers in queue. */
+	// 	--num_in_q;
 
-		/* Compute the delay of the customer who is beginning service
-		 * and update the total delay of accumulator. */
-		delay = sim_time - time_arrival[1];
-		total_service_time += delay;
+	// 	/* Compute the delay of the customer who is beginning service
+	// 	 * and update the total delay of accumulator. */
+	// 	delay = sim_time - time_arrival[1];
+	// 	total_service_time += delay;
 
-		/* Increment the number of customers delayed, and schedule departure. */
-		++num_clients_served;
-		time_next_event[2] = sim_time + expon(mean_service);
+	// 	/* Increment the number of customers delayed, and schedule departure. */
+	// 	++num_clients_served;
+	// 	time_next_event[2] = sim_time + expon(mean_service);
 
-		/* Move each customer in queue (if any) up one place. */
-		for (i = 1; i <= num_in_q; ++i)
-		{
-			time_arrival[i] = time_arrival[i + 1];
-		}
-	}
+	// 	/* Move each customer in queue (if any) up one place. */
+	// 	for (i = 1; i <= num_in_q; ++i)
+	// 	{
+	// 		time_arrival[i] = time_arrival[i + 1];
+	// 	}
+	// }
 }
 
 bool is_type1(void)
@@ -331,7 +332,8 @@ void report(void)
 { /*Report generator function */
 	/* Compute and write estimates of desired measures of performance. */
 	fprintf(outfile, "_________________________________________________________\n");
-	fprintf(outfile, "Tiempo de espera en la cola promedio de %11.3f minutos\n\n", total_service_time / num_clients_served);
+	fprintf(outfile, "Tiempo de espera en la cola 1 promedio de %11.3f minutos\n\n", total_service_time_type1 / num_clients_served_q1);
+	fprintf(outfile, "Tiempo de espera en la cola 2 promedio de %11.3f minutos\n\n", total_service_time_type2 / num_clients_served_q2);
 	fprintf(outfile, "Número promedio de entidades en la cola %10.3f\n\n", area_num_in_q / sim_time);
 	fprintf(outfile, "Utilización del sistema servidor%15.3f\n\n", area_server_status / sim_time);
 	fprintf(outfile, "La simulación termina en %12.3f minutos", sim_time);
@@ -346,10 +348,10 @@ void update_time_avg_stats(void)
 	time_last_event = sim_time;
 
 	/* Update area under number-in-queue function */
-	area_num_in_q += num_in_q * time_since_last_event;
+	//area_num_in_q += num_in_q * time_since_last_event;
 
 	/* Update area under server-busy indicator function. */
-	area_server_status += server_status * time_since_last_event;
+	//area_server_status += server_status * time_since_last_event;
 }
 
 float expon(float mean)
