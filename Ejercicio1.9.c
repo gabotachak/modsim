@@ -230,8 +230,8 @@ float expon(float mean)
 	return -mean * log(lcgrand(1));
 }
 
-float poisson(float mean)  /* Exponential variate generation function. */
+float poisson(float mean) /* Exponential variate generation function. */
 {
-    int f = rand() % 20;
-    return -mean * log((lcgrand(f)));
+	int f = rand() % 20;
+	return -mean * log((lcgrand(f)));
 }
