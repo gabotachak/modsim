@@ -6,8 +6,8 @@
 #include <stdlib.h>
 #include "lib/lcgrand.h" /* Header file for the random-number-generator */
 
-#define Q_LIMIT_1 100 /* Limit on the queue length */
-#define Q_LIMIT_2 100 /* Limit on the queue length */
+#define Q_LIMIT_1 50 /* Limit on the queue length */
+#define Q_LIMIT_2 50 /* Limit on the queue length */
 #define BUSY 1        /* Mnemonics for server's being busy */
 #define IDLE 0        /* and idle. */
 
@@ -47,7 +47,7 @@ int main()
         mean_service_2 = 5;
         num_events = 5;
 
-        fprintf(outfile, "\n %d Simulación", simulation);
+        fprintf(outfile, "\n %d Simulación\n\n", simulation);
         fprintf(outfile, "Media de tiempo entre llegadas de personas%16.3f minutos\n\n", mean_interarrival_1);
         fprintf(outfile, "Media de tiempo de servicio a personas%16.3f minutos\n\n", mean_service_1);
         fprintf(outfile, "Media de tiempo entre llegadas de llamadas%16.3f minutos\n\n", mean_interarrival_2);
@@ -78,11 +78,12 @@ int main()
 
         mean_simulations_1 += total_delays_1 / num_custs_delayed_1;
         mean_simulations_2 += total_delays_2 / num_custs_delayed_2;
-        report();
+        
     }
-    fprintf(outfile, "\n\n Average delay time in simulations-calls %11.3f minutes\n\n",
+    report();
+    fprintf(outfile, "\n\n Tiempo medio de retardo en simulaciones-llamadas %11.3f minutos\n\n",
             mean_simulations_2 / 100.0);
-    fprintf(outfile, "Average delay time in simulations-persons %11.3f minutes\n\n",
+    fprintf(outfile, "Tiempo medio de retardo en simulaciones-pesonas %11.3f minutos\n\n",
             mean_simulations_1 / 100.0);
     fclose(outfile);
 
@@ -222,15 +223,6 @@ void depart(int cust)
     }
 }
 
-/* void report(void)
-{ /*Report generator function */
-/* Compute and write estimates of desired measures of performance. */
-/*fprintf(outfile, "_________________________________________________________\n");
-	fprintf(outfile, "Tiempo de espera en la cola promedio de %11.3f minutos\n\n", total_service_time / num_entities_served);
-	fprintf(outfile, "Número promedio de entidades en la cola %10.3f\n\n", area_num_in_q / sim_time);
-	fprintf(outfile, "Utilización del sistema servidor%15.3f\n\n", area_server_status / sim_time);
-	fprintf(outfile, "La simulación termina en %12.3f minutos", sim_time);
-}*/
 
 void update_time_avg_stats(void)
 { /* Update area accumulators for time-average statistics. */
@@ -240,7 +232,7 @@ void update_time_avg_stats(void)
     time_since_last_event = sim_time - time_last_event;
     time_last_event = sim_time;
 
-    /* Update area under number-in-queue function */
+    /* Update area under number-in-queue functions */
     area_num_q1 += num_in_q_1 * time_since_last_event;
     area_num_q2 += num_in_q_2 * time_since_last_event;
 
@@ -254,19 +246,15 @@ float expon(float mean)
     return -mean * log(lcgrand(1));
 }
 
-/*float poisson(float mean)  /* Exponential variate generation function. */
-/*{
-    int f = rand() % 20;
-    return -mean * log((lcgrand(f)));
-}*/
 void report(void)
 { /*Report generator function */
     /* Compute and write estimates of desired measures of performance. */
-    fprintf(outfile, "_________________________________________________________\n");
-    fprintf(outfile, "Tiempo de espera en la cola de personas promedio de %11.3d minutos\n\n", total_delays_1 / num_custs_delayed_1);
-    fprintf(outfile, "Tiempo de espera en la cola de llamadas promedio de %11.3d minutos\n\n", total_delays_2 / num_custs_delayed_2);
-    fprintf(outfile, "Número promedio de entidades en la cola de personas %10.3f\n\n", area_num_q1 / sim_time);
-    fprintf(outfile, "Número promedio de entidades en la cola de llamadas %10.3f\n\n", area_num_q2 / sim_time);
+    fprintf(outfile, "____________________________________REPORTE____________________________________\n");
+    fprintf(outfile, "Tiempo de espera en la cola de personas promedio de %11.3f minutos\n\n", (double)(total_delays_1 / num_custs_delayed_1));
+    fprintf(outfile, "Tiempo de espera en la cola de llamadas promedio de %11.3f minutos\n\n", (double)(total_delays_2 / num_custs_delayed_2));
+    fprintf(outfile, "Número promedio de entidades en la cola de personas %10.3f minutos\n\n", area_num_q1 / sim_time);
+    fprintf(outfile, "Número promedio de entidades en la cola de llamadas %10.3f minutos\n\n", area_num_q2 / sim_time);
     fprintf(outfile, "Utilización del sistema servidor%15.3f\n\n", area_server_status / sim_time);
-    fprintf(outfile, "La simulación termina en %12.3f minutos", sim_time);
+    fprintf(outfile, "La simulación termina en %12.3f minutos\n\n", sim_time);
+    fprintf(outfile, "_______________________________________________________________________________\n\n");
 }
