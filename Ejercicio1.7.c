@@ -252,8 +252,8 @@ void report(void)
     fprintf(outfile, "____________________________________REPORTE____________________________________\n");
     fprintf(outfile, "Tiempo de espera en la cola de personas promedio de %11.3f minutos\n\n", (double)(total_delays_1 / num_custs_delayed_1));
     fprintf(outfile, "Tiempo de espera en la cola de llamadas promedio de %11.3f minutos\n\n", (double)(total_delays_2 / num_custs_delayed_2));
-    fprintf(outfile, "Número promedio de entidades en la cola de personas %10.3f minutos\n\n", area_num_q1 / sim_time);
-    fprintf(outfile, "Número promedio de entidades en la cola de llamadas %10.3f minutos\n\n", area_num_q2 / sim_time);
+    fprintf(outfile, "Número promedio de entidades en la cola de personas %10.3f personas\n\n", area_num_q1 / sim_time);
+    fprintf(outfile, "Número promedio de entidades en la cola de llamadas %10.3f personas\n\n", area_num_q2 / sim_time);
     fprintf(outfile, "Utilización del sistema servidor%15.3f\n\n", area_server_status / sim_time);
     fprintf(outfile, "La simulación termina en %12.3f minutos\n\n", sim_time);
     fprintf(outfile, "_______________________________________________________________________________\n\n");
