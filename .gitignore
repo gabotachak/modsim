@@ -1,12 +1,2 @@
-*
-!*.c
-!*.o
-!*.h
-!*.cbp
-!*.layout
-!*.md
-!*.in
-!*.gitignore
-!*.vscode
-!*lib/
-!Makefile
+*.code-workspace
+s*.vscode
