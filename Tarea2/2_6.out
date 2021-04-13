@@ -1,0 +1,71 @@
+Pediatr�a:
+Interarrival time 8.00 minutes
+Mean registry time 2.50 minutes
+Uniform between -10 - 40 minutes
+Probability of extra time 0.95 minutes
+Mean extra time 2.00 minutes
+
+Medicina general:
+Interarrival time 12.00 minutes
+Mean registry time 2.00 minutes
+Uniform between -10 - 30 minutes
+Probability of extra time 0.85 minutes
+Mean extra time 2.50 minutes
+
+Ending time             8
+
+
+Pediatr�a:
+
+Delays in queue, in minutes:
+
+ sampst                         Number
+variable                          of
+ number       Average           values          Maximum          Minimum
+________________________________________________________________________
+
+    1         0.00000          1.00000          0.00000          0.00000 
+________________________________________________________________________
+
+
+
+Queue length (1) and server utilization (2):
+
+  File         Time
+ number       average          Maximum          Minimum
+_______________________________________________________
+
+    1         0.00000             -INF              INF 
+
+    2         0.00000          1.00000          1.00000 
+_______________________________________________________
+
+
+Medicina general:
+
+Delays in queue, in minutes:
+
+ sampst                         Number
+variable                          of
+ number       Average           values          Maximum          Minimum
+________________________________________________________________________
+
+    2         0.00000          0.00000             -INF              INF 
+________________________________________________________________________
+
+
+
+Queue length (1) and server utilization (2):
+
+  File         Time
+ number       average          Maximum          Minimum
+_______________________________________________________
+
+    3         0.00000             -INF              INF 
+
+    4         0.00000             -INF              INF 
+_______________________________________________________
+
+
+
+Time simulation ended:       8.000 minutes
