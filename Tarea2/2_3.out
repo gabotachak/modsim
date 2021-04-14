@@ -1,0 +1,14 @@
+Sistema de una pequeña bodega:
+Con una flotilla de 3.00 camionetas
+Tiempo medio de viaje con distribución exponencial de 2.00 horas
+Tiempo medio de descarga con distribución exponencial entre 1/1.00 y 1/3.00 horas
+-------------------------------------------------------------
+Resultados:
+
+Tiempo medio de espera en la cola:
+
+Probabilidad de ocupación del muchacho:
+
+Probabilidad de que todas las camionetas estén viajando:
+
+Número promedio de camionetas viajando:

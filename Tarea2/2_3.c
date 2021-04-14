@@ -2,46 +2,31 @@
 
 // Variables del sistema
 
-#define EVENT_ARRIVAL 1	   //Llegada ni�o
-#define EVENT_DEPARTURE 2  //Salida ni�o
-#define EVENT_ARRIVAL2 3   //Llegada adulto
-#define EVENT_DEPARTURE2 4 //Salida adulto
-#define LIST_QUEUE 1	   //Cola ni�os
-#define LIST_SERVER 2	   //Pediatr�a
-#define LIST_QUEUE2 3	   //Cola adultos
-#define LIST_SERVER2 4	   //Medicina general
-#define SAMPST_DELAYS 1	   //Variable para datos sobre ni�os
-#define SAMPST_DELAYS2 2   //Variable para datos sobre adultos
+#define EVENT_ARRIVAL 1	  //Llegada camioneta tipo 1
+#define EVENT_DEPARTURE 2 //Salida camioneta tipo 1
+#define LIST_QUEUE 1	  //Cola de la bodega
+#define SAMPST_DELAYS 1	  //Variable para datos y estadística
+#define BUSY true		  //Estado del muchacho
+#define FREE false		  //Estado del muchacho
 
 int num_custs_delayed, ending, un1, un2, num_custs_delayed2, ending2, un12, un22;
-float interarrival, mean_extra, p1, extra, interarrival2, mean_extra2, p12, extra2;
+float travel_time, num_vans, mean_extra, p1, extra, travel_time2, mean_extra2, p12, extra2;
 FILE *infile, *outfile;
 
 void init_model(void);
-void arrive(void);	//Llegada ni�o
-void arrive2(void); //Llegada adulto
-void depart(void);	//Salida ni�o
-void depart2(void); //Salida adulto
-void report(void);	//Generaci�n del reporte
+void arrive(void); //Llegada de la camioneta
+void depart(void); //Salida de la camioneta
+void report(void); //Generación del reporte
 
 int main() //Programa principal
 {
-	infile = fopen("template.in", "r");
-	outfile = fopen("template.out", "w");
-	fscanf(infile, "%f %f %d %d %f %f %f %f %d %d %f %f %d", &interarrival, &mean_extra, &un1, &un2, &p1, &extra, &interarrival2, &mean_extra2, &un12, &un22, &p12, &extra2, &ending);
-	fprintf(outfile, "Pediatr�a:\n");
-	fprintf(outfile, "Interarrival time %.2f minutes\n", interarrival);
-	fprintf(outfile, "Mean registry time %.2f minutes\n", mean_extra);
-	fprintf(outfile, "Uniform between %d - %d minutes\n", un1 - un2, un1 + un2);
-	fprintf(outfile, "Probability of extra time %.2f minutes\n", p1);
-	fprintf(outfile, "Mean extra time %.2f minutes\n\n", extra);
-	fprintf(outfile, "Medicina general:\n");
-	fprintf(outfile, "Interarrival time %.2f minutes\n", interarrival2);
-	fprintf(outfile, "Mean registry time %.2f minutes\n", mean_extra2);
-	fprintf(outfile, "Uniform between %d - %d minutes\n", un12 - un22, un12 + un22);
-	fprintf(outfile, "Probability of extra time %.2f minutes\n", p12);
-	fprintf(outfile, "Mean extra time %.2f minutes\n\n", extra2);
-	fprintf(outfile, "Ending time%14d\n\n\n", ending);
+	infile = fopen("2_3.in", "r");
+	outfile = fopen("2_3.out", "w");
+	fscanf(infile, "%f %f", &num_vans, &travel_time);
+	fprintf(outfile, "Sistema de una pequeña bodega:\n");
+	fprintf(outfile, "Con una flotilla de %.2f camionetas\n", num_vans);
+	fprintf(outfile, "Tiempo medio de viaje con distribución exponencial de %.2f horas\n", travel_time);
+	fprintf(outfile, "Tiempo medio de descarga con distribución exponencial entre 1/%.2f y 1/%.2f horas\n", 1.0, num_vans);
 	init_simlib();
 	maxatr = 4;
 	init_model();
@@ -56,12 +41,6 @@ int main() //Programa principal
 		case EVENT_DEPARTURE:
 			depart();
 			break;
-		case EVENT_ARRIVAL2:
-			arrive2();
-			break;
-		case EVENT_DEPARTURE2:
-			depart2();
-			break;
 		}
 	}
 	report();
@@ -73,103 +52,60 @@ int main() //Programa principal
 void init_model(void)
 {
 	num_custs_delayed = 0;
-	event_schedule(sim_time + interarrival, EVENT_ARRIVAL);
-	event_schedule(sim_time + interarrival2, EVENT_ARRIVAL2);
+	event_schedule(sim_time + travel_time, EVENT_ARRIVAL);
 }
 
 void arrive(void)
 {
-	event_schedule(sim_time + interarrival, EVENT_ARRIVAL);
-	if (list_size[LIST_SERVER] == 1)
-	{
-		transfer[1] = sim_time;
-		list_file(LAST, LIST_QUEUE);
-	}
-	else
-	{
-		sampst(0.0, SAMPST_DELAYS);
-		++num_custs_delayed;
-		list_file(FIRST, LIST_SERVER);
-		double t = uniform(un1 - un2, un1 + un2, 1);
-		double h = lcgrand(2);
-		double m = 0;
-		if (h > p1)
-			m = expon(extra, 3);
-		event_schedule(sim_time + t + h + m, EVENT_DEPARTURE);
-	}
+	printf("Arrive");
+	// event_schedule(sim_time + travel_time, EVENT_ARRIVAL);
+	// if (list_size[LIST_SERVER] == 1)
+	// {
+	// 	transfer[1] = sim_time;
+	// 	list_file(LAST, LIST_QUEUE);
+	// }
+	// else
+	// {
+	// 	sampst(0.0, SAMPST_DELAYS);
+	// 	++num_custs_delayed;
+	// 	list_file(FIRST, LIST_SERVER);
+	// 	double t = uniform(un1 - un2, un1 + un2, 1);
+	// 	double h = lcgrand(2);
+	// 	double m = 0;
+	// 	if (h > p1)
+	// 		m = expon(extra, 3);
+	// 	event_schedule(sim_time + t + h + m, EVENT_DEPARTURE);
+	// }
 }
 
 void depart(void)
 {
-	if (list_size[LIST_QUEUE] == 0)
-	{
-		list_remove(FIRST, LIST_SERVER);
-	}
-	else
-	{
-		list_remove(FIRST, LIST_QUEUE);
-		sampst(sim_time - transfer[1], SAMPST_DELAYS);
-		++num_custs_delayed;
-		double t = uniform(un1 - un2, un1 + un2, 1);
-		double h = lcgrand(2);
-		double m = 0;
-		if (h > p1)
-			m = expon(extra, 3);
-		event_schedule(sim_time + t + h + m, EVENT_DEPARTURE);
-	}
-}
-
-void arrive2(void)
-{
-	event_schedule(sim_time + interarrival2, EVENT_ARRIVAL2);
-	if (list_size[LIST_SERVER2] == 2)
-	{
-		transfer[1] = sim_time;
-		list_file(LAST, LIST_QUEUE2);
-	}
-	else
-	{
-		sampst(0.0, SAMPST_DELAYS2);
-		++num_custs_delayed2;
-		list_file(FIRST, LIST_SERVER2);
-		double t = uniform(un12 - un22, un12 + un22, 4);
-		double h = lcgrand(5);
-		double m = 0;
-		if (h > p12)
-			m = expon(extra2, 6);
-		event_schedule(sim_time + t + h + m, EVENT_DEPARTURE2);
-	}
-}
-
-void depart2(void)
-{
-	if (list_size[LIST_QUEUE2] == 0)
-		list_remove(FIRST, LIST_SERVER2);
-	else
-	{
-		list_remove(FIRST, LIST_QUEUE2);
-		sampst(sim_time - transfer[1], SAMPST_DELAYS2);
-		++num_custs_delayed2;
-		double t = uniform(un12 - un22, un12 + un22, 4);
-		double h = lcgrand(5);
-		double m = 0;
-		if (h > p12)
-			m = expon(extra, 6);
-		event_schedule(sim_time + t + h + m, EVENT_DEPARTURE2);
-	}
+	printf("Depart");
+	// if (list_size[LIST_QUEUE] == 0)
+	// {
+	// 	list_remove(FIRST, LIST_SERVER);
+	// }
+	// else
+	// {
+	// 	list_remove(FIRST, LIST_QUEUE);
+	// 	sampst(sim_time - transfer[1], SAMPST_DELAYS);
+	// 	++num_custs_delayed;
+	// 	double t = uniform(un1 - un2, un1 + un2, 1);
+	// 	double h = lcgrand(2);
+	// 	double m = 0;
+	// 	if (h > p1)
+	// 		m = expon(extra, 3);
+	// 	event_schedule(sim_time + t + h + m, EVENT_DEPARTURE);
+	// }
 }
 
 void report(void)
 {
-	fprintf(outfile, "Pediatr�a:\n");
-	fprintf(outfile, "\nDelays in queue, in minutes:\n");
-	out_sampst(outfile, SAMPST_DELAYS, SAMPST_DELAYS);
-	fprintf(outfile, "\nQueue length (1) and server utilization (2):\n");
-	out_filest(outfile, LIST_QUEUE, LIST_SERVER);
-	fprintf(outfile, "Medicina general:\n");
-	fprintf(outfile, "\nDelays in queue, in minutes:\n");
-	out_sampst(outfile, SAMPST_DELAYS2, SAMPST_DELAYS2);
-	fprintf(outfile, "\nQueue length (1) and server utilization (2):\n");
-	out_filest(outfile, LIST_QUEUE2, LIST_SERVER2);
-	fprintf(outfile, "\nTime simulation ended:%12.3f minutes\n", sim_time);
+	fprintf(outfile, "-------------------------------------------------------------\n");
+	fprintf(outfile, "Resultados:\n");
+	fprintf(outfile, "\nTiempo medio de espera en la cola:\n");
+	fprintf(outfile, "\nProbabilidad de ocupación del muchacho:\n");
+	fprintf(outfile, "\nProbabilidad de que todas las camionetas estén viajando:\n");
+	fprintf(outfile, "\nNúmero promedio de camionetas viajando:\n");
+	//fprintf(outfile, LIST_QUEUE);
 }
