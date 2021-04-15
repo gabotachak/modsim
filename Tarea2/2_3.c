@@ -101,7 +101,7 @@ void report(void)
 {
 	fprintf(outfile, "-------------------------------------------------------------\n");
 	fprintf(outfile, "Resultados:\n");
-	fprintf(outfile, "\nTiempos de espera en la cola:\n");
+	fprintf(outfile, "\nClientes atendidos:\n");
 	out_sampst(outfile, SAMPST_DELAYS, SAMPST_DELAYS);
 	fprintf(outfile, "\nOcupación de la cola:\n");
 	out_filest(outfile, STORAGE_QUEUE, STORAGE_QUEUE);
