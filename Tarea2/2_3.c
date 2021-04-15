@@ -6,7 +6,7 @@
 #define EVENT_DEPARTURE 2  //Salida camioneta tipo 1
 #define STORAGE_QUEUE 1	   //Cola de la bodega
 #define UNLOADING_QUEUE 2  //Cola para las descargas
-#define TRAVELLING_QUEUE 2 //Cola para las descargas
+#define TRAVELLING_QUEUE 3 //Cola para las descargas
 #define SAMPST_DELAYS 1	   //Variable para datos y estadística de las camionetas atendidas
 #define BUSY 1			   //Estado del muchacho
 #define FREE 0			   //Estado del muchacho
@@ -61,14 +61,13 @@ void init_model(void)
 void arrive(void)
 {
 	event_schedule(sim_time + expon(travel_time, 1), EVENT_ARRIVAL);
-	// if (list_size[TRAVELLING_QUEUE] > 0)
-	// {
-	// 	list_remove(FIRST, TRAVELLING_QUEUE);
-	// }
-	if (list_size[UNLOADING_QUEUE] == 1)
+	if (list_size[TRAVELLING_QUEUE] > 0 && sim_time - transfer[2] >= travel_time)
+	{
+		list_remove(FIRST, TRAVELLING_QUEUE);
+	}
+	if (list_size[UNLOADING_QUEUE] == 1 && list_size[TRAVELLING_QUEUE] <= num_vans)
 	{
 		transfer[1] = sim_time;
-
 		list_file(LAST, STORAGE_QUEUE);
 	}
 	else
@@ -83,9 +82,10 @@ void arrive(void)
 
 void depart(void)
 {
-	if (list_size[STORAGE_QUEUE] == 0)
+	if (list_size[STORAGE_QUEUE] == 0 && list_size[TRAVELLING_QUEUE] <= num_vans)
 	{
 		list_remove(FIRST, UNLOADING_QUEUE);
+		list_file(LAST, TRAVELLING_QUEUE);
 	}
 	else
 	{
@@ -108,7 +108,7 @@ void report(void)
 	fprintf(outfile, "\nOcupación del muchacho:\n");
 	out_filest(outfile, UNLOADING_QUEUE, UNLOADING_QUEUE);
 	fprintf(outfile, "\nViajes de las camionetas:\n");
-	//out_filest(outfile, TRAVELLING_QUEUE, TRAVELLING_QUEUE);
+	out_filest(outfile, TRAVELLING_QUEUE, TRAVELLING_QUEUE);
 	fprintf(outfile, "\nSimulación terminada en %12.3f horas\n", sim_time);
 	//fprintf(outfile, STORAGE_QUEUE);
 }
