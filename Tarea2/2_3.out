@@ -1,0 +1,53 @@
+Sistema de una pequeña bodega:
+Con una flotilla de 3.00 camionetas
+Tiempo medio de viaje con distribución exponencial de 2.00 horas
+Tiempo medio de descarga con distribución exponencial entre 1/1.00 y 1/3.00 horas
+-------------------------------------------------------------
+Resultados:
+
+Clientes atendidos:
+
+ sampst                         Number
+variable                          of
+ number       Average           values          Maximum          Minimum
+________________________________________________________________________
+
+    1        0.110573          10.0000         0.621452          0.00000 
+________________________________________________________________________
+
+
+
+Ocupación de la cola:
+
+  File         Time
+ number       average          Maximum          Minimum
+_______________________________________________________
+
+    1        0.151214          2.00000          0.00000 
+_______________________________________________________
+
+
+
+Ocupación del muchacho:
+
+  File         Time
+ number       average          Maximum          Minimum
+_______________________________________________________
+
+    2        0.461229          1.00000          0.00000 
+_______________________________________________________
+
+
+
+Viajes de las camionetas:
+
+  File         Time
+ number       average          Maximum          Minimum
+_______________________________________________________
+
+    3        0.464601          1.00000          0.00000 
+_______________________________________________________
+
+
+
+Simulación terminada en       24.672 horas
