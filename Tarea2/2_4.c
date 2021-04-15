@@ -78,52 +78,78 @@ void init_model(void)
 	asientos_B2;
 	par_b1=2;
 	event_schedule(uniform(mean_interarrival_par,desviacion_par,STREAM_INTERARRIVAL),EVENT_ARRIVAL_B1);
-	arrive_B1(2)
+	arrive_B1(2);
 }
 
+//llegada del bus 1
 void arrive_B1(int par)
 {
 	par_b1 = par;
 	event_schedule(sim_time + mean_interarrival_par, EVENT_ARRIVAL_B1);
+	//está en el hotel 1
 	if (par_b1 == 0)
 	{
+		//apunta a la siguiente parada (hotel 2)
 		++par_b1;
 		int aux;
 
 		//int size_queue_h1 = list_size(LIST_QUEUE_H1);
 
+		//las personas en el bus 1 ahora son la mitad de las que venían del aeropuerto
 		personas_B1 -= (personas_A_B1/2);
+
+		//las personas que venían del aeropuerto ahora son la mitad
 		personas_A_B1 /=2; 
-		for (aux = 0; aux < list_size(LIST_QUEUE_H1); aux)
+
+		//for para remover todas las personas que están en la cola del paradero de bus del hotel 1
+		for (aux = 0; aux < list_size(LIST_QUEUE_H1); aux++)
 		{
 			list_remove(FIRST,LIST_QUEUE_H1);
 		}
+
+		// se agregan las paersonas que estaban en la cola dell paradero de bus del hotel 1 al tota, de personas en el bus 1
 		personas_B1 += aux;
+
+		// se calculan las demoras (creo jejeje)
 		sampst(sim_time,SAMPST_DELAYS);
+
+		// está en la parada hotel 2
 	}else if (par_b1 == 1)
 	{
+		//apunta a la parada del aerpuerto
 		++par_b1;
 		int aux;
 
+		//las personas que venían del aeropuerto se bajan en el hotel 2
 		personas_B1 -= personas_A_B1;
+		//ya no hay personas que venían del aeropuerto
 		personas_A_B1 = 0;
 
-		for (aux = 0; aux < list_size(LIST_QUEUE_H2); aux)
+		//for para remover todas las personas que están en la cola del paradero de bus del hotel 2
+		for (aux = 0; aux < list_size(LIST_QUEUE_H2); aux++)
 		{
 			list_remove(FIRST,LIST_QUEUE_H2);
 		}
 
+		//se agregan al total de personas en el bus 1 las que se acaban de subir en el hotel 2
+		personas_B1 += aux;
+
+
+		//está en el aeropuerto
 	}else if (par_b1 == 2)
 	{
+		//apunta a la parada hotel 1
 		par_b1 = 0;
 		int aux;
-
+		//for para remover todas las personas que están en la cola del paradero de bus del aeropuerto
 		for (aux = 0; aux < list_size(LIST_QUEUE_AER); aux++)
 		{
 			list_remove(FIRST,LIST_QUEUE_AER);		
 		}
 		
+		//las personas en el bus son las que se acaban de subir al aeropuerto
 		personas_B1 = aux;
+		//las personas que vienen del aeropuerto son las que se acaban de subir
 		personas_A_B1 = aux;
 
 	}
@@ -131,6 +157,8 @@ void arrive_B1(int par)
 	//event_schedule(sim_time + interarrival, EVENT_ARRIVAL);
 }
 
+
+//HACE LO MISMO QUE LA arrive_B1 pero para el bus 2
 void arrive_B2(int par){
 	par_b2 = par;
 	event_schedule(sim_time + mean_interarrival_par, EVENT_ARRIVAL_B2);
