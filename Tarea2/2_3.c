@@ -60,7 +60,7 @@ void init_model(void)
 void arrive(void)
 {
 	event_schedule(sim_time + expon(travel_time, 1), EVENT_ARRIVAL);
-	if (muchacho = BUSY)
+	if (list_size[UNLOADING_QUEUE] == 1)
 	{
 		transfer[1] = sim_time;
 		list_file(LAST, STORAGE_QUEUE);
@@ -77,32 +77,32 @@ void arrive(void)
 
 void depart(void)
 {
-	printf("Depart");
-	// if (list_size[STORAGE_QUEUE] == 0)
-	// {
-	// 	list_remove(FIRST, LIST_SERVER);
-	// }
-	// else
-	// {
-	// 	list_remove(FIRST, STORAGE_QUEUE);
-	// 	sampst(sim_time - transfer[1], SAMPST_DELAYS);
-	// 	++num_custs_delayed;
-	// 	double t = uniform(un1 - un2, un1 + un2, 1);
-	// 	double h = lcgrand(2);
-	// 	double m = 0;
-	// 	if (h > p1)
-	// 		m = expon(extra, 3);
-	// 	event_schedule(sim_time + t + h + m, EVENT_DEPARTURE);
-	// }
+	if (list_size[STORAGE_QUEUE] == 0)
+	{
+		list_remove(FIRST, UNLOADING_QUEUE);
+	}
+	else
+	{
+		list_remove(FIRST, STORAGE_QUEUE);
+		sampst(sim_time - transfer[1], SAMPST_DELAYS);
+		++num_custs_delayed;
+		double service_time = expon(1 / list_size[UNLOADING_QUEUE], 1);
+		event_schedule(sim_time + service_time, EVENT_DEPARTURE);
+	}
 }
 
 void report(void)
 {
 	fprintf(outfile, "-------------------------------------------------------------\n");
 	fprintf(outfile, "Resultados:\n");
-	fprintf(outfile, "\nTiempo medio de espera en la cola:\n");
-	fprintf(outfile, "\nProbabilidad de ocupación del muchacho:\n");
+	fprintf(outfile, "\nTiempos de espera en la cola:\n");
+	out_sampst(outfile, SAMPST_DELAYS, SAMPST_DELAYS);
+	fprintf(outfile, "\nOcupación de la cola:\n");
+	out_filest(outfile, STORAGE_QUEUE, STORAGE_QUEUE);
+	fprintf(outfile, "\nOcupación del muchacho:\n");
+	out_filest(outfile, UNLOADING_QUEUE, UNLOADING_QUEUE);
 	fprintf(outfile, "\nProbabilidad de que todas las camionetas estén viajando:\n");
 	fprintf(outfile, "\nNúmero promedio de camionetas viajando:\n");
+	fprintf(outfile, "\nSimulación terminada en %12.3f horas\n", sim_time);
 	//fprintf(outfile, STORAGE_QUEUE);
 }

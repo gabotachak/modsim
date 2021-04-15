@@ -5,10 +5,42 @@ Tiempo medio de descarga con distribución exponencial entre 1/1.00 y 1/3.00 hor
 -------------------------------------------------------------
 Resultados:
 
-Tiempo medio de espera en la cola:
+Tiempos de espera en la cola:
 
-Probabilidad de ocupación del muchacho:
+ sampst                         Number
+variable                          of
+ number       Average           values          Maximum          Minimum
+________________________________________________________________________
+
+    1        0.338479          14.0000          1.61480          0.00000 
+________________________________________________________________________
+
+
+
+Ocupación de la cola:
+
+  File         Time
+ number       average          Maximum          Minimum
+_______________________________________________________
+
+    1        0.180506          2.00000          0.00000 
+_______________________________________________________
+
+
+
+Ocupación del muchacho:
+
+  File         Time
+ number       average          Maximum          Minimum
+_______________________________________________________
+
+    2        0.359622          1.00000          0.00000 
+_______________________________________________________
+
+
 
 Probabilidad de que todas las camionetas estén viajando:
 
 Número promedio de camionetas viajando:
+
+Simulación terminada en       26.252 horas
