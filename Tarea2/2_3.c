@@ -75,7 +75,7 @@ void arrive(void)
 		sampst(0.0, SAMPST_DELAYS);
 		++num_custs_delayed;
 		list_file(FIRST, UNLOADING_QUEUE);
-		double service_time = expon(1 / list_size[UNLOADING_QUEUE], 1);
+		double service_time = expon(1 / (list_size[UNLOADING_QUEUE] + list_size[STORAGE_QUEUE]), 1);
 		event_schedule(sim_time + service_time, EVENT_DEPARTURE);
 	}
 }
