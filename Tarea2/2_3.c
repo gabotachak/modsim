@@ -2,13 +2,14 @@
 
 // Variables del sistema
 
-#define EVENT_ARRIVAL 1	  //Llegada camioneta tipo 1
-#define EVENT_DEPARTURE 2 //Salida camioneta tipo 1
-#define STORAGE_QUEUE 1	  //Cola de la bodega
-#define UNLOADING_QUEUE 2 //Cola para las descargas
-#define SAMPST_DELAYS 1	  //Variable para datos y estadística de las camionetas atendidas
-#define BUSY 1			  //Estado del muchacho
-#define FREE 0			  //Estado del muchacho
+#define EVENT_ARRIVAL 1	   //Llegada camioneta tipo 1
+#define EVENT_DEPARTURE 2  //Salida camioneta tipo 1
+#define STORAGE_QUEUE 1	   //Cola de la bodega
+#define UNLOADING_QUEUE 2  //Cola para las descargas
+#define TRAVELLING_QUEUE 2 //Cola para las descargas
+#define SAMPST_DELAYS 1	   //Variable para datos y estadística de las camionetas atendidas
+#define BUSY 1			   //Estado del muchacho
+#define FREE 0			   //Estado del muchacho
 
 int num_custs_delayed, sim_hours, muchacho;
 float travel_time, num_vans;
@@ -60,9 +61,14 @@ void init_model(void)
 void arrive(void)
 {
 	event_schedule(sim_time + expon(travel_time, 1), EVENT_ARRIVAL);
+	// if (list_size[TRAVELLING_QUEUE] > 0)
+	// {
+	// 	list_remove(FIRST, TRAVELLING_QUEUE);
+	// }
 	if (list_size[UNLOADING_QUEUE] == 1)
 	{
 		transfer[1] = sim_time;
+
 		list_file(LAST, STORAGE_QUEUE);
 	}
 	else
@@ -101,8 +107,8 @@ void report(void)
 	out_filest(outfile, STORAGE_QUEUE, STORAGE_QUEUE);
 	fprintf(outfile, "\nOcupación del muchacho:\n");
 	out_filest(outfile, UNLOADING_QUEUE, UNLOADING_QUEUE);
-	fprintf(outfile, "\nProbabilidad de que todas las camionetas estén viajando:\n");
-	fprintf(outfile, "\nNúmero promedio de camionetas viajando:\n");
+	fprintf(outfile, "\nViajes de las camionetas:\n");
+	//out_filest(outfile, TRAVELLING_QUEUE, TRAVELLING_QUEUE);
 	fprintf(outfile, "\nSimulación terminada en %12.3f horas\n", sim_time);
 	//fprintf(outfile, STORAGE_QUEUE);
 }
