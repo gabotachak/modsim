@@ -8,10 +8,8 @@
 #define UNLOADING_QUEUE 2  //Cola para las descargas
 #define TRAVELLING_QUEUE 3 //Cola para las descargas
 #define SAMPST_DELAYS 1	   //Variable para datos y estadística de las camionetas atendidas
-#define BUSY 1			   //Estado del muchacho
-#define FREE 0			   //Estado del muchacho
 
-int num_custs_delayed, sim_hours, muchacho;
+int num_custs_delayed, sim_hours;
 float travel_time, num_vans;
 FILE *infile, *outfile;
 
@@ -54,14 +52,13 @@ int main() //Programa principal
 void init_model(void)
 {
 	num_custs_delayed = 0;
-	muchacho = FREE;
 	event_schedule(sim_time + expon(travel_time, 1), EVENT_ARRIVAL);
 }
 
 void arrive(void)
 {
 	event_schedule(sim_time + expon(travel_time, 1), EVENT_ARRIVAL);
-	if (list_size[TRAVELLING_QUEUE] > 0 && sim_time - transfer[2] >= travel_time)
+	if (list_size[TRAVELLING_QUEUE] > 0 && sim_time - transfer[2] >= expon(travel_time, 1))
 	{
 		list_remove(FIRST, TRAVELLING_QUEUE);
 	}
@@ -92,7 +89,7 @@ void depart(void)
 		list_remove(FIRST, STORAGE_QUEUE);
 		sampst(sim_time - transfer[1], SAMPST_DELAYS);
 		++num_custs_delayed;
-		double service_time = expon(1 / list_size[UNLOADING_QUEUE], 1);
+		double service_time = expon(1 / (list_size[UNLOADING_QUEUE] + list_size[STORAGE_QUEUE]), 1);
 		event_schedule(sim_time + service_time, EVENT_DEPARTURE);
 	}
 }
