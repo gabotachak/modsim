@@ -76,14 +76,15 @@ void init_model(void)
 	asientos_B1 = 0;
 	asientos_B2;
 	par_b1 = 2;
-	event_schedule(uniform(mean_interarrival_par, desviacion_par, STREAM_INTERARRIVAL), EVENT_ARRIVAL_B1);
-	arrive_B1(2);
+	event_schedule(normal(mean_interarrival_par, desviacion_par), EVENT_ARRIVAL_B1);
+
+	//faltaría que el bus 2 iniciara 30 min después del primero
+	
 }
 
 //llegada del bus 1
-void arrive_B1(int par)
+void arrive_B1(void)
 {
-	par_b1 = par;
 	event_schedule(sim_time + mean_interarrival_par, EVENT_ARRIVAL_B1);
 	//está en el hotel 1
 	if (par_b1 == 0)
@@ -92,7 +93,7 @@ void arrive_B1(int par)
 		++par_b1;
 		int aux;
 
-		//int size_queue_h1 = list_size(LIST_QUEUE_H1);
+		// int size_queue_h1 = list_size(LIST_QUEUE_H1);
 
 		//las personas en el bus 1 ahora son la mitad de las que venían del aeropuerto
 		personas_B1 -= (personas_A_B1 / 2);
@@ -157,9 +158,8 @@ void arrive_B1(int par)
 }
 
 //HACE LO MISMO QUE LA arrive_B1 pero para el bus 2
-void arrive_B2(int par)
+void arrive_B2(void)
 {
-	par_b2 = par;
 	event_schedule(sim_time + mean_interarrival_par, EVENT_ARRIVAL_B2);
 	if (par_b2 == 0)
 	{
@@ -225,12 +225,30 @@ void arrive_Aer(void)
 	event_schedule(sim_time + expon(mean_interarrival_aer, STREAM_INTERARRIVAL), EVENT_ARRIVAL_H1);
 }
 
+float normal(float mean, float std)
+{
+    float aux = 0, cK = 1000;
+    for (int k = 1; k <= cK; k++)
+    {
+        aux = aux + (float)rand() / RAND_MAX;
+    }
+    return std * sqrt((float)12 / cK) * (aux - (float)cK / 2) + mean;
+}
+
+float poisson(float mean) /* Exponential variate generation function. */
+{
+	int f = rand() % 20;
+	
+	
+	return -mean * log((lcgrand(f)));
+}
+
+
 void report(void)
 {
-	// fprintf(outfile, "Pediatr�a:\n");
-	// fprintf(outfile, "\nDelays in queue, in minutes:\n");
-	// out_sampst(outfile, SAMPST_DELAYS, SAMPST_DELAYS);
-	// fprintf(outfile, "\nQueue length (1) and server utilization (2):\n");
+	fprintf(outfile, "-------------- RESULTADOS---------------\n");
+	fprintf(outfile, "\nDelays in queue, in minutes:\n");
+	out_sampst(outfile, SAMPST_DELAYS, SAMPST_DELAYS);
 	// out_filest(outfile, LIST_QUEUE, LIST_SERVER);
 	// fprintf(outfile, "Medicina general:\n");
 	// fprintf(outfile, "\nDelays in queue, in minutes:\n");
