@@ -4,7 +4,7 @@
 
 #define EVENT_PASS_AER 1   //Llegada pasajero aeropuerto
 #define EVENT_PASS_H1 2    //Llegada pasajero Hotel 1
-#define EVENT_PASS_H1 3    //Llegada pasajero Hotel 2
+#define EVENT_PASS_H2 3    //Llegada pasajero Hotel 2
 #define EVENT_BUS1_AER 4    //Llegada bus 1 aeropuerto
 #define EVENT_BUS1_H1 5     //Llegada bus 1 Hotel 1
 #define EVENT_BUS1_H2 6     //Llegada bus 1 Hotel 2
@@ -110,11 +110,11 @@ void init_model(void)
 {
 	//par_b1 = 2;
 	float init_b1 = normal(mean_interarrival_par, desviacion_par);
-	event_schedule(sim_time + init_b1, EVENT_ARRIVAL_B1);
-	event_schedule(sim_time + init_b1 + 30, EVENT_ARRIVAL_B2);
-	event_schedule(sim_time + expon(mean_interarrival_aer),EVENT_ARRIVAL_AER);
-	event_schedule(sim_time + expon(mean_interarrival_bustop,STREAM_INTERARRIVAL),EVENT_ARRIVAL_H1);
-	event_schedule(sim_time + expon(mean_interarrival_bustop,STREAM_INTERARRIVAL),EVENT_ARRIVAL_H2);
+	event_schedule(sim_time + init_b1, EVENT_BUS1_H1);
+	event_schedule(sim_time + init_b1 + 30, EVENT_BUS2_H1);
+	event_schedule(sim_time + expon(mean_interarrival_aer,STREAM_INTERARRIVAL),EVENT_PASS_AER);
+	event_schedule(sim_time + expon(mean_interarrival_bustop,STREAM_INTERARRIVAL),EVENT_PASS_H1);
+	event_schedule(sim_time + expon(mean_interarrival_bustop,STREAM_INTERARRIVAL),EVENT_PASS_H2);
 }
 
 void arrive_bus1_aer(void){
@@ -134,7 +134,7 @@ void arrive_bus1_aer(void){
 		//printf("En el bus después de descargar: %d\n", list_size[LIST_PASS_BUS]);
 
 		//printf("En la fila A: %d\n", list_size[LIST_PASS_A]);
-		while ((list_size[LIST_QUEUE_B1_AER] + list_size(LIST_QUEUE_B1_H)) < asientos_B1 && list_size[LIST_QUEUE_AER] > 0)
+		while ((list_size[LIST_QUEUE_B1_AER] + list_size[LIST_QUEUE_B1_H]) < asientos_B1 && list_size[LIST_QUEUE_AER] > 0)
 		{
 			//printf("%d\n",list_size[LIST_PASS_BUS]);
 			list_remove(FIRST, LIST_QUEUE_AER);
@@ -172,7 +172,7 @@ void arrive_bus1_h1(void){
 		//printf("En el bus después de descargar: %d\n", list_size[LIST_PASS_BUS]);
 
 		//printf("En la fila A: %d\n", list_size[LIST_PASS_A]);
-		while ((list_size[LIST_QUEUE_B1_AER] + list_size(LIST_QUEUE_B1_H)) < asientos_B1 && list_size[LIST_QUEUE_H1] > 0)
+		while ((list_size[LIST_QUEUE_B1_AER] + list_size[LIST_QUEUE_B1_H]) < asientos_B1 && list_size[LIST_QUEUE_H1] > 0)
 		{
 			//printf("%d\n",list_size[LIST_PASS_BUS]);
 			list_remove(FIRST, LIST_QUEUE_H1);
@@ -210,7 +210,7 @@ void arrive_bus1_h2(void){
 		//printf("En el bus después de descargar: %d\n", list_size[LIST_PASS_BUS]);
 
 		//printf("En la fila A: %d\n", list_size[LIST_PASS_A]);
-		while ((list_size[LIST_QUEUE_B1_AER] + list_size(LIST_QUEUE_B1_H)) < asientos_B1 && list_size[LIST_QUEUE_H2] > 0)
+		while ((list_size[LIST_QUEUE_B1_AER] + list_size[LIST_QUEUE_B1_H]) < asientos_B1 && list_size[LIST_QUEUE_H2] > 0)
 		{
 			//printf("%d\n",list_size[LIST_PASS_BUS]);
 			list_remove(FIRST, LIST_QUEUE_H2);
@@ -248,7 +248,7 @@ void arrive_bus2_aer(void){
 		//printf("En el bus después de descargar: %d\n", list_size[LIST_PASS_BUS]);
 
 		//printf("En la fila A: %d\n", list_size[LIST_PASS_A]);
-		while ((list_size[LIST_QUEUE_B2_AER] + list_size(LIST_QUEUE_B2_H)) < asientos_B2 && list_size[LIST_QUEUE_AER] > 0)
+		while ((list_size[LIST_QUEUE_B2_AER] + list_size[LIST_QUEUE_B2_H]) < asientos_B2 && list_size[LIST_QUEUE_AER] > 0)
 		{
 			//printf("%d\n",list_size[LIST_PASS_BUS]);
 			list_remove(FIRST, LIST_QUEUE_AER);
@@ -286,7 +286,7 @@ void arrive_bus2_h1(void){
 		//printf("En el bus después de descargar: %d\n", list_size[LIST_PASS_BUS]);
 
 		//printf("En la fila A: %d\n", list_size[LIST_PASS_A]);
-		while ((list_size[LIST_QUEUE_B2_AER] + list_size(LIST_QUEUE_B2_H)) < asientos_B2 && list_size[LIST_QUEUE_H1] > 0)
+		while ((list_size[LIST_QUEUE_B2_AER] + list_size[LIST_QUEUE_B2_H]) < asientos_B2 && list_size[LIST_QUEUE_H1] > 0)
 		{
 			//printf("%d\n",list_size[LIST_PASS_BUS]);
 			list_remove(FIRST, LIST_QUEUE_H1);
@@ -324,7 +324,7 @@ void arrive_bus2_h2(void){
 		//printf("En el bus después de descargar: %d\n", list_size[LIST_PASS_BUS]);
 
 		//printf("En la fila A: %d\n", list_size[LIST_PASS_A]);
-		while ((list_size[LIST_QUEUE_B2_AER] + list_size(LIST_QUEUE_B2_H)) < asientos_B2 && list_size[LIST_QUEUE_H2] > 0)
+		while ((list_size[LIST_QUEUE_B2_AER] + list_size[LIST_QUEUE_B2_H]) < asientos_B2 && list_size[LIST_QUEUE_H2] > 0)
 		{
 			//printf("%d\n",list_size[LIST_PASS_BUS]);
 			list_remove(FIRST, LIST_QUEUE_H2);
