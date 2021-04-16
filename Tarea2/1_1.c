@@ -17,13 +17,13 @@
 
 #define SAMPST 1	   			//
 
-int N, bus_state, people_in_bus;
+int N, bus_state;
 float init_time, end_time, bus_mean, bus_std, a_mean, b_mean, total_time, wait_time;
 
 
 FILE *infile, *outfile;
 
-float normal();
+float normal(float mean, float std);
 float poisson(float mean);
 
 void init_model(void);
@@ -79,7 +79,7 @@ void init_model(void)
 	a_mean = a_mean / 60;
 	b_mean = b_mean / 60;
 	wait_time = 0;
-	event_schedule(sim_time + normal(bus_mean, bus_std)), EVENT_BUS_ARRIVAL_A);
+	event_schedule(sim_time + normal(bus_mean, bus_std), EVENT_BUS_ARRIVAL_A);
 	event_schedule(sim_time + poisson(a_mean), EVENT_PASS_ARRIVAL_A);
 	event_schedule(sim_time + poisson(a_mean), EVENT_PASS_ARRIVAL_B);
 }
@@ -88,110 +88,70 @@ void pass_arrival_a(void)
 {
 	event_schedule(sim_time + poisson(a_mean), EVENT_PASS_ARRIVAL_A);
 	list_file(LAST, LIST_PASS_A);
-	if (bus_state == BUS_IN_A && list_size[LIST_PASS_BUS] < N)
-	{
-		list_remove(FIRST, LIST_PASS_A);
-		list_file(FIRST, LIST_PASS_BUS);
-		wait_time += sim_time;
-	}
 }
 
 void pass_arrival_b(void)
 {
 	event_schedule(sim_time + poisson(b_mean), EVENT_PASS_ARRIVAL_B);
 	list_file(LAST, LIST_PASS_B);
-	if (bus_state == BUS_IN_B && list_size[LIST_PASS_BUS] < N)
-	{
-		list_remove(FIRST, LIST_PASS_A);
-		list_file(FIRST, LIST_PASS_BUS);
-		wait_time += sim_time;
-	}
 }
 
 void bus_arrival_a(void)
 {
-	bus_state = BUS_IN_A
+	bus_state = BUS_IN_A;
 	event_schedule(sim_time + normal(bus_mean, bus_std), EVENT_BUS_ARRIVAL_A);
+	
+	while (list_size[LIST_PASS_BUS] != 0)
+	{
+		list_remove(FIRST, LIST_PASS_BUS);
+		list_file(LAST, LIST_PASS_SERVED);
+		printf("%d\n",list_size[LIST_PASS_BUS]);
+	}
+
+	while (list_size[LIST_PASS_BUS] < N)
+	{
+		//printf("%d\n",list_size[LIST_PASS_BUS]);
+		if (list_size[LIST_PASS_A] != 0)
+		{
+			list_remove(FIRST, LIST_PASS_A);
+			list_file(FIRST, LIST_PASS_BUS);
+		}
+	}
+
+	event_schedule(sim_time + normal(bus_mean, bus_std), EVENT_BUS_ARRIVAL_B);
+}
+
+void bus_arrival_b(void)
+{
+	bus_state = BUS_IN_B;
+	event_schedule(sim_time + normal(bus_mean, bus_std), EVENT_BUS_ARRIVAL_B);
+	
 	while (list_size[LIST_PASS_BUS] != 0)
 	{
 		list_remove(FIRST, LIST_PASS_BUS);
 		list_file(LAST, LIST_PASS_SERVED);
 	}
-}
 
-void depart(void)
-{
-	if (list_size[LIST_QUEUE] == 0)
+	while (list_size[LIST_PASS_BUS] < N)
 	{
-		list_remove(FIRST, LIST_SERVER);
+		if (list_size[LIST_PASS_B] != 0)
+		{
+			list_remove(FIRST, LIST_PASS_B);
+			list_file(FIRST, LIST_PASS_BUS);
+		}
 	}
-	else
-	{
-		list_remove(FIRST, LIST_QUEUE);
-		sampst(sim_time - transfer[1], SAMPST_DELAYS);
-		++num_custs_delayed;
-		double t = uniform(un1 - un2, un1 + un2, 1);
-		double h = lcgrand(2);
-		double m = 0;
-		if (h > p1)
-			m = expon(extra, 3);
-		event_schedule(sim_time + t + h + m, EVENT_DEPARTURE);
-	}
-}
 
-void arrive2(void)
-{
-	event_schedule(sim_time + interarrival2, EVENT_ARRIVAL2);
-	if (list_size[LIST_SERVER2] == 2)
-	{
-		transfer[1] = sim_time;
-		list_file(LAST, LIST_QUEUE2);
-	}
-	else
-	{
-		sampst(0.0, SAMPST_DELAYS2);
-		++num_custs_delayed2;
-		list_file(FIRST, LIST_SERVER2);
-		double t = uniform(un12 - un22, un12 + un22, 4);
-		double h = lcgrand(5);
-		double m = 0;
-		if (h > p12)
-			m = expon(extra2, 6);
-		event_schedule(sim_time + t + h + m, EVENT_DEPARTURE2);
-	}
-}
-
-void depart2(void)
-{
-	if (list_size[LIST_QUEUE2] == 0)
-		list_remove(FIRST, LIST_SERVER2);
-	else
-	{
-		list_remove(FIRST, LIST_QUEUE2);
-		sampst(sim_time - transfer[1], SAMPST_DELAYS2);
-		++num_custs_delayed2;
-		double t = uniform(un12 - un22, un12 + un22, 4);
-		double h = lcgrand(5);
-		double m = 0;
-		if (h > p12)
-			m = expon(extra, 6);
-		event_schedule(sim_time + t + h + m, EVENT_DEPARTURE2);
-	}
+	event_schedule(sim_time + normal(bus_mean, bus_std), EVENT_BUS_ARRIVAL_A);
 }
 
 void report(void)
 {
-	fprintf(outfile, "Pediatr�a:\n");
-	fprintf(outfile, "\nDelays in queue, in minutes:\n");
-	out_sampst(outfile, SAMPST_DELAYS, SAMPST_DELAYS);
-	fprintf(outfile, "\nQueue length (1) and server utilization (2):\n");
-	out_filest(outfile, LIST_QUEUE, LIST_SERVER);
-	fprintf(outfile, "Medicina general:\n");
-	fprintf(outfile, "\nDelays in queue, in minutes:\n");
-	out_sampst(outfile, SAMPST_DELAYS2, SAMPST_DELAYS2);
-	fprintf(outfile, "\nQueue length (1) and server utilization (2):\n");
-	out_filest(outfile, LIST_QUEUE2, LIST_SERVER2);
-	fprintf(outfile, "\nTime simulation ended:%12.3f minutes\n", sim_time);
+	fprintf(outfile, "Resultados:\n");
+	fprintf(outfile, "\nPasajeros\n");
+	// out_sampst(outfile, SAMPST_DELAYS, SAMPST_DELAYS);
+	// fprintf(outfile, "\nQueue length (1) and server utilization (2):\n");
+	// out_filest(outfile, LIST_QUEUE, LIST_SERVER);
+	// fprintf(outfile, "Medicina general:\n");
 }
 
 float normal(float mean, float std)
