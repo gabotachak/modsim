@@ -1,0 +1,32 @@
+Simulación de buses
+Tiempo de inicio a las 9.00 horas
+Tiempo de fin a las 17.00 horas
+Tiempo total de simulación: 8.00 horas
+Capacidad total de pasajeros en el bus (N): 50
+Promedio de llegada a A en distribución de Poisson: 9.00
+Promedio de llegada a B en distribución de Poisson: 5.00
+
+--------------------
+Resultados:
+
+Pasajeros
+
+  File         Time
+ number       average          Maximum          Minimum
+_______________________________________________________
+
+    1         2.01074          16.0000          0.00000 
+_______________________________________________________
+
+
+
+  File         Time
+ number       average          Maximum          Minimum
+_______________________________________________________
+
+    2        0.956221          5.00000          0.00000 
+_______________________________________________________
+
+
+
+Simulación terminada en 480.32 horas
