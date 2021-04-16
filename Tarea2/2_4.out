@@ -1,0 +1,21 @@
+Media de tiempo para llegar a cada parada 20.00 minutes
+Desviación estandar de las llegadas a cada parada 2.00 minutes
+Media de tiempo de llegada de los vuelos 2.50 minutes
+Media entre llegadas a las paradas de autobus en cada hotel 5.00 minutes
+
+Ending time          1000
+
+
+-------------- RESULTADOS---------------
+
+Delays in queue, in minutes:
+
+ sampst                         Number
+variable                          of
+ number       Average           values          Maximum          Minimum
+________________________________________________________________________
+
+    1         508.767          17.0000          982.498          40.9075 
+________________________________________________________________________
+
+
